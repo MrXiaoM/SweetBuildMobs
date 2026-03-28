@@ -1,7 +1,9 @@
 package top.mrxiaom.sweet.buildmobs;
 
 import de.tr7zw.changeme.nbtapi.utils.MinecraftVersion;
+import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 import top.mrxiaom.pluginbase.BukkitPlugin;
 import top.mrxiaom.pluginbase.paper.PaperFactory;
@@ -117,6 +119,20 @@ public class SweetBuildMobs extends BukkitPlugin {
             ITriggerItem result = provider.parse(config);
             if (result != null) {
                 return result;
+            }
+        }
+        return null;
+    }
+
+    @Nullable
+    public String parseItemKey(@Nullable ItemStack item) {
+        if (item == null || item.getType().equals(Material.AIR) || item.getAmount() <= 0) {
+            return null;
+        }
+        for (ITriggerItem.Provider provider : triggerItemRegistry) {
+            String key = provider.key(item);
+            if (key != null) {
+                return key;
             }
         }
         return null;

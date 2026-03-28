@@ -1,6 +1,13 @@
 # 是否启用该配置
 enable: false
 
+# 世界配置
+worlds:
+  # 配置可用世界白名单，留空则在所有世界可用
+  whitelist: []
+  # 配置可用世界黑名单
+  blacklist: []
+
 # 方块结构定义
 block-layers:
   # 每一层使用什么方块

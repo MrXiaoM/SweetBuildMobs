@@ -1,5 +1,6 @@
 package top.mrxiaom.sweet.buildmobs.data;
 
+import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -19,6 +20,8 @@ public class Build {
     private final SweetBuildMobs plugin;
     private final String id;
     private final boolean enable;
+    private final List<String> worldsWhiteList;
+    private final List<String> worldsBlackList;
     private final List<char[][]> layerList;
     private final Map<Character, IBlockDefine> layerDefines;
     private final List<EnumFacing> layerRequireFacings;
@@ -33,6 +36,9 @@ public class Build {
         this.plugin = plugin;
         this.id = id;
         this.enable = config.getBoolean("enable", false);
+
+        this.worldsWhiteList = config.getStringList("worlds.whitelist");
+        this.worldsBlackList = config.getStringList("worlds.blacklist");
 
         this.layerDefines = new HashMap<>();
         section = config.getConfigurationSection("block-layers.defines");
@@ -312,6 +318,29 @@ public class Build {
     @NotNull
     public List<EnumAction> triggerItemRequireActions() {
         return Collections.unmodifiableList(triggerItemRequireActions);
+    }
+
+    /**
+     * 检查触发检查该构筑是否允许按指定方式来触发
+     * @param action 指定方式
+     */
+    public boolean isAvailableAction(@NotNull EnumAction action) {
+        if (triggerItemRequireActions.isEmpty()) {
+            return true;
+        }
+        return triggerItemRequireActions.contains(action);
+    }
+
+    /**
+     * 检查触发检查该构筑是否允许在指定世界触发
+     * @param world 指定世界
+     */
+    public boolean isAvailableWorld(World world) {
+        String name = world.getName();
+        if (!worldsWhiteList.isEmpty() && !worldsWhiteList.contains(name)) {
+            return false;
+        }
+        return !worldsBlackList.contains(name);
     }
 
     /**
