@@ -178,6 +178,9 @@ public class Build {
                 this.layerBlockByLoc[layerNumber][y] = new LayerBlock[width];
                 for (int x = 0; x < width; x++) {
                     char defineId = layer[i][x];
+                    // 需要忽略半角空格和全角空格，将那个位置当作空气
+                    if (defineId == ' ' || defineId == '\u3000') continue;
+
                     IBlockDefine blockDefine = layerDefines.get(defineId);
                     if (blockDefine == null) {
                         throw new IllegalArgumentException("预料中的错误，无法找到 layers[" + layerNumber + "][" + i + "][" + x + "] 对应的方块定义");
