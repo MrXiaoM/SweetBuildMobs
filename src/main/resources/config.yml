@@ -1,0 +1,4 @@
+
+# builds 目录位置
+builds-folders:
+  - './builds'

@@ -1,0 +1,16 @@
+name: SweetBuildMobs
+version: '${version}'
+main: top.mrxiaom.sweet.buildmobs.SweetBuildMobs
+api-version: 1.13
+depend: []
+softdepend: 
+  - PlaceholderAPI
+  - MythicMobs
+authors: [ MrXiaoM ]
+folia-supported: true
+libraries:
+  - "${libraries}"
+commands:
+  sweetbuildmobs:
+    description: 'The main command of SweetBuildMobs'
+    aliases: [ sbm, sbuildmobs, sbuildmob, sbmobs, sbmob ]
