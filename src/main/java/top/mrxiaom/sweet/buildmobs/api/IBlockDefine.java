@@ -4,10 +4,11 @@ import org.bukkit.block.Block;
 import org.bukkit.configuration.ConfigurationSection;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import top.mrxiaom.sweet.buildmobs.enums.EnumFacing;
 
 public interface IBlockDefine {
 
-    boolean isMatch(Block block);
+    boolean isMatch(Block block, EnumFacing facing);
 
     interface Provider {
         default int priority() {

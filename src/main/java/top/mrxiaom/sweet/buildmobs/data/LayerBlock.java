@@ -97,7 +97,7 @@ public class LayerBlock {
      */
     @Nullable
     public BuildMatchResult match(@NotNull Block block, EnumFacing facing) {
-        if (!blockDefine.isMatch(block)) {
+        if (!blockDefine.isMatch(block, facing)) {
             return null;
         }
         MatchBlock self = new MatchBlock(this, block);
@@ -107,7 +107,7 @@ public class LayerBlock {
                 allBlocks.add(self);
             } else {
                 Block relative = getRelative(block, another, facing);
-                if (!another.blockDefine.isMatch(relative)) {
+                if (!another.blockDefine.isMatch(relative, facing)) {
                     allBlocks.clear();
                     return null;
                 }

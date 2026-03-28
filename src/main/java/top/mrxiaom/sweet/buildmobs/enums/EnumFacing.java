@@ -1,6 +1,7 @@
 package top.mrxiaom.sweet.buildmobs.enums;
 
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 
 /**
  * 方向轴置换枚举
@@ -21,7 +22,7 @@ public enum EnumFacing {
      *   <li>则<code>本地X轴</code> 的方向为<code>X轴负方向</code>
      * </ul>
      */
-    NORTH(Axis.Z_NEGATIVE, Axis.X_NEGATIVE, Axis.Y_POSITIVE),
+    NORTH(Axis.Z_NEGATIVE, Axis.X_NEGATIVE, Axis.Y_POSITIVE, BlockFace.NORTH),
     /**
      * 面向西边时
      * <ul>
@@ -29,7 +30,7 @@ public enum EnumFacing {
      *   <li>则<code>本地X轴</code> 的方向为<code>Z轴正方向</code>
      * </ul>
      */
-    WEST(Axis.X_NEGATIVE, Axis.Z_POSITIVE, Axis.Y_POSITIVE),
+    WEST(Axis.X_NEGATIVE, Axis.Z_POSITIVE, Axis.Y_POSITIVE, BlockFace.WEST),
     /**
      * 面向南边时
      * <ul>
@@ -37,7 +38,7 @@ public enum EnumFacing {
      *   <li>则<code>本地X轴</code> 的方向为<code>X轴正方向</code>
      * </ul>
      */
-    SOUTH(Axis.Z_POSITIVE, Axis.X_POSITIVE, Axis.Y_POSITIVE),
+    SOUTH(Axis.Z_POSITIVE, Axis.X_POSITIVE, Axis.Y_POSITIVE, BlockFace.SOUTH),
     /**
      * 面向东边时
      * <ul>
@@ -45,14 +46,20 @@ public enum EnumFacing {
      *   <li>则<code>本地X轴</code> 的方向为<code>Z轴负方向</code>
      * </ul>
      */
-    EAST(Axis.X_POSITIVE, Axis.Z_NEGATIVE, Axis.Y_POSITIVE),
+    EAST(Axis.X_POSITIVE, Axis.Z_NEGATIVE, Axis.Y_POSITIVE, BlockFace.EAST),
 
     ;
     private final Axis axisLayer, axisLocalX, axisLocalY;
-    EnumFacing(Axis axisLayer, Axis axisLocalX, Axis axisLocalY) {
+    private final BlockFace bukkitFace;
+    EnumFacing(Axis axisLayer, Axis axisLocalX, Axis axisLocalY, BlockFace bukkitFace) {
         this.axisLayer = axisLayer;
         this.axisLocalX = axisLocalX;
         this.axisLocalY = axisLocalY;
+        this.bukkitFace = bukkitFace;
+    }
+
+    public BlockFace toBukkit() {
+        return bukkitFace;
     }
 
     public Block getRelative(Block block, int layer, int localX, int localY) {
