@@ -1,1 +1,38 @@
+# 是否启用该配置
+enable: false
+
+# 方块结构定义
+block-layers:
+  # 每一层使用什么方块
+  layers:
+    0:
+      - ' a '
+      - 'bbb'
+      - ' b '
+  defines:
+    a:
+      type: Vanilla
+      material: CARVED_PUMPKIN
+    b:
+      type: Vanilla
+      material: DIAMOND_BLOCK
+  # 需要结构朝向哪边才能召唤生物，可用值有 NORTH, SOUTH, EAST, WEST
+  # 留空则朝向任意方向均可触发召唤
+  require-facing: []
+
+# 触发点击物品
+trigger-item:
+  # 指定物品
+  item:
+    type: MythicMobs
+    mythic: ExampleItem
+  # 需要点击 block-layers.defines 中的哪种方块才能触发生成
+  # 留空则点击其中的任意方块都可以触发
+  require-blocks: []
+  # 需要以什么方式点击方块才能触发生成，可用值有 LEFT, RIGHT, SHIFT_LEFT, SHIFT_RIGHT
+  # 留空则以任意方式点击方块都可以触发
+  require-actions: [ RIGHT ]
+
+# 生成操作
+spawn-actions: {}
 # TODO

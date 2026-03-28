@@ -1,6 +1,8 @@
 package top.mrxiaom.sweet.buildmobs;
 
 import de.tr7zw.changeme.nbtapi.utils.MinecraftVersion;
+import org.bukkit.configuration.ConfigurationSection;
+import org.jetbrains.annotations.Nullable;
 import top.mrxiaom.pluginbase.BukkitPlugin;
 import top.mrxiaom.pluginbase.paper.PaperFactory;
 import top.mrxiaom.pluginbase.utils.inventory.InventoryFactory;
@@ -13,9 +15,13 @@ import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 import org.jetbrains.annotations.NotNull;
+import top.mrxiaom.sweet.buildmobs.api.IBlockDefine;
+import top.mrxiaom.sweet.buildmobs.api.ITriggerItem;
 
 public class SweetBuildMobs extends BukkitPlugin {
     public static SweetBuildMobs getInstance() {
@@ -63,6 +69,57 @@ public class SweetBuildMobs extends BukkitPlugin {
     @Override
     public @NotNull InventoryFactory initInventoryFactory() {
         return PaperFactory.createInventoryFactory();
+    }
+
+    private final List<IBlockDefine.Provider> blockDefineRegistry = new ArrayList<>();
+    private final List<ITriggerItem.Provider> triggerItemRegistry = new ArrayList<>();
+
+    public void registerBlockDefine(IBlockDefine.Provider provider) {
+        this.blockDefineRegistry.add(provider);
+        this.blockDefineRegistry.sort(Comparator.comparingInt(IBlockDefine.Provider::priority));
+    }
+
+    public void unregisterBlockDefine(IBlockDefine.Provider provider) {
+        this.blockDefineRegistry.remove(provider);
+        this.blockDefineRegistry.sort(Comparator.comparingInt(IBlockDefine.Provider::priority));
+    }
+
+    @Nullable
+    public IBlockDefine parseBlockDefine(@Nullable ConfigurationSection config) {
+        if (config == null) {
+            return null;
+        }
+        for (IBlockDefine.Provider provider : blockDefineRegistry) {
+            IBlockDefine result = provider.parse(config);
+            if (result != null) {
+                return result;
+            }
+        }
+        return null;
+    }
+
+    public void registerTriggerItem(ITriggerItem.Provider provider) {
+        this.triggerItemRegistry.add(provider);
+        this.triggerItemRegistry.sort(Comparator.comparingInt(ITriggerItem.Provider::priority));
+    }
+
+    public void unregisterTriggerItem(ITriggerItem.Provider provider) {
+        this.triggerItemRegistry.remove(provider);
+        this.triggerItemRegistry.sort(Comparator.comparingInt(ITriggerItem.Provider::priority));
+    }
+
+    @Nullable
+    public ITriggerItem parseTriggerItem(@Nullable ConfigurationSection config) {
+        if (config == null) {
+            return null;
+        }
+        for (ITriggerItem.Provider provider : triggerItemRegistry) {
+            ITriggerItem result = provider.parse(config);
+            if (result != null) {
+                return result;
+            }
+        }
+        return null;
     }
 
     @Override
