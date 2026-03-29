@@ -4,6 +4,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.configuration.MemoryConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Entity;
@@ -11,10 +12,15 @@ import org.bukkit.entity.Player;
 import org.bukkit.entity.Shulker;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.BlockPistonExtendEvent;
+import org.bukkit.event.block.BlockPistonRetractEvent;
+import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import top.mrxiaom.pluginbase.func.AutoRegister;
 import top.mrxiaom.pluginbase.utils.CollectionUtils;
@@ -43,6 +49,7 @@ public class BuildManager extends AbstractModule implements Listener {
     private final Map<String, BlockGroupByBlock> buildsByBlockKeys = new HashMap<>();
     private boolean debugHighlightBlocks = false;
     private boolean debugDisableSpawn = false;
+    private boolean disableTriggerItem, disableTriggerPlace;
     public BuildManager(SweetBuildMobs plugin) {
         super(plugin);
         registerEvents();
@@ -57,6 +64,9 @@ public class BuildManager extends AbstractModule implements Listener {
     public void reloadConfig(MemoryConfiguration pluginConfig) {
         this.debugHighlightBlocks = pluginConfig.getBoolean("debug.highlight-blocks", false);
         this.debugDisableSpawn = pluginConfig.getBoolean("debug.disable-spawn", false);
+        this.disableTriggerItem = !pluginConfig.getBoolean("enable-triggers.item", true);
+        this.disableTriggerPlace = !pluginConfig.getBoolean("enable-triggers.place", true);
+
         loadedBuilds.clear();
         buildsByItemKeys.clear();
         buildsByBlockKeys.clear();
@@ -96,12 +106,19 @@ public class BuildManager extends AbstractModule implements Listener {
         info("加载了 " + loadedBuilds.size() + " 个构筑配置");
     }
 
-    private void doSpawnBuild(Player player, Block block, BuildMatchResult result, @Nullable ItemStack item) {
+    private void doSpawnBuild(
+            @Nullable Player player,
+            @NotNull Block block,
+            @NotNull BuildMatchResult result,
+            @Nullable ItemStack item
+    ) {
 
         // 检查方块是否在其它插件的保护区内
-        for (MatchBlock matchBlock : result.allBlocks()) {
-            if (plugin.isProtectedBlock(player, matchBlock.block())) {
-                return;
+        if (player != null) {
+            for (MatchBlock matchBlock : result.allBlocks()) {
+                if (plugin.isProtectedBlock(player, matchBlock.block())) {
+                    return;
+                }
             }
         }
 
@@ -141,7 +158,9 @@ public class BuildManager extends AbstractModule implements Listener {
                     return;
                 } else {
                     item.setAmount(Math.max(0, amount - costCount));
-                    Util.submitInvUpdate(player);
+                    if (player != null) {
+                        Util.submitInvUpdate(player);
+                    }
                 }
             }
         }
@@ -172,8 +191,9 @@ public class BuildManager extends AbstractModule implements Listener {
         }
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onInteract(PlayerInteractEvent e) {
+        if (disableTriggerItem) return;
         if (e.useItemInHand() == Event.Result.DENY) return;
         if (e.useInteractedBlock() == Event.Result.DENY) return;
         Player player = e.getPlayer();
@@ -195,5 +215,36 @@ public class BuildManager extends AbstractModule implements Listener {
         if (result == null) return;
 
         doSpawnBuild(player, block, result, item);
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onBlockPlaced(BlockPlaceEvent e) {
+        if (disableTriggerPlace || e.isCancelled()) return;
+        Player player = e.getPlayer();
+        World world = player.getWorld();
+
+        Block b = e.getBlockPlaced();
+        String blockKey = plugin.parseBlockKey(b);
+        if (blockKey == null) return;
+
+        BlockGroupByBlock group = buildsByBlockKeys.get(blockKey);
+        if (group == null) return;
+        plugin.getScheduler().runTask(() -> {
+            Block block = world.getBlockAt(b.getX(), b.getY(), b.getZ());
+            handleBlockChanged(player, block);
+        });
+    }
+
+    private void handleBlockChanged(@Nullable Player player, @NotNull Block block) {
+        String blockKey = plugin.parseBlockKey(block);
+        if (blockKey == null) return;
+
+        BlockGroupByBlock group = buildsByBlockKeys.get(blockKey);
+        if (group == null) return;
+
+        BuildMatchResult result = group.matchBuild(block);
+        if (result == null) return;
+
+        doSpawnBuild(player, block, result, null);
     }
 }

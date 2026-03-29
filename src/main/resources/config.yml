@@ -9,3 +9,10 @@ debug:
 # builds 目录位置
 builds-folders:
   - './builds'
+
+# 启用的构筑触发器
+enable-triggers:
+  # 玩家物品点击触发
+  item: true
+  # 玩家放置方块触发
+  place: true

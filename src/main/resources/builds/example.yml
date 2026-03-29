@@ -29,6 +29,10 @@ block-layers:
 
 # 触发点击物品
 trigger-item:
+  # 无需物品即可触发搭建构筑召唤怪物
+  # 开启此选项，则 trigger-items 中的其它选项均无效
+  # 玩家只需要搭建出构筑的方块结构，即可召唤怪物
+  no-items-needed: false
   # 指定物品
   item:
     type: MythicMobs
