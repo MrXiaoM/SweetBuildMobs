@@ -4,6 +4,7 @@ import de.tr7zw.changeme.nbtapi.utils.MinecraftVersion;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 import top.mrxiaom.pluginbase.BukkitPlugin;
 import top.mrxiaom.pluginbase.paper.PaperFactory;
@@ -23,10 +24,12 @@ import java.util.List;
 
 import org.jetbrains.annotations.NotNull;
 import top.mrxiaom.sweet.buildmobs.api.IBlockDefine;
+import top.mrxiaom.sweet.buildmobs.api.ILocProvider;
 import top.mrxiaom.sweet.buildmobs.api.IMobSpawner;
 import top.mrxiaom.sweet.buildmobs.api.ITriggerItem;
 import top.mrxiaom.sweet.buildmobs.builtin.block.BlockVanilla;
 import top.mrxiaom.sweet.buildmobs.builtin.item.ItemVanilla;
+import top.mrxiaom.sweet.buildmobs.builtin.loc.LocCenterBottom;
 import top.mrxiaom.sweet.buildmobs.builtin.mob.MobNone;
 import top.mrxiaom.sweet.buildmobs.builtin.mob.MobVanilla;
 
@@ -81,6 +84,7 @@ public class SweetBuildMobs extends BukkitPlugin {
     private final List<IBlockDefine.Provider> blockDefineRegistry = new ArrayList<>();
     private final List<ITriggerItem.Provider> triggerItemRegistry = new ArrayList<>();
     private final List<IMobSpawner.Provider> mobSpawnerRegistry = new ArrayList<>();
+    private final List<ILocProvider.Provider> locProviderRegistry = new ArrayList<>();
 
     public void registerBlockDefine(IBlockDefine.Provider provider) {
         this.blockDefineRegistry.add(provider);
@@ -131,6 +135,7 @@ public class SweetBuildMobs extends BukkitPlugin {
     }
 
     @Nullable
+    @Contract("null -> null")
     public String parseItemKey(@Nullable ItemStack item) {
         if (item == null || item.getType().equals(Material.AIR) || item.getAmount() <= 0) {
             return null;
@@ -168,16 +173,45 @@ public class SweetBuildMobs extends BukkitPlugin {
         return null;
     }
 
+    public void registerLocProvider(ILocProvider.Provider provider) {
+        this.locProviderRegistry.add(provider);
+        this.locProviderRegistry.sort(Comparator.comparingInt(ILocProvider.Provider::priority));
+    }
+
+    public void unregisterLocProvider(ILocProvider.Provider provider) {
+        this.locProviderRegistry.remove(provider);
+        this.locProviderRegistry.sort(Comparator.comparingInt(ILocProvider.Provider::priority));
+    }
+
+    @Nullable
+    public ILocProvider parseLocProvider(@Nullable ConfigurationSection config) {
+        if (config == null) {
+            return null;
+        }
+        for (ILocProvider.Provider provider : locProviderRegistry) {
+            ILocProvider result = provider.parse(config);
+            if (result != null) {
+                return result;
+            }
+        }
+        return null;
+    }
+
     @Override
     protected void beforeLoad() {
         MinecraftVersion.replaceLogger(getLogger());
         MinecraftVersion.disableUpdateCheck();
         MinecraftVersion.disableBStats();
         MinecraftVersion.getVersion();
+
         registerBlockDefine(BlockVanilla.PROVIDER);
+
         registerTriggerItem(ItemVanilla.PROVIDER);
+
         registerMobSpawner(MobNone.PROVIDER);
         registerMobSpawner(MobVanilla.PROVIDER);
+
+        registerLocProvider(LocCenterBottom.PROVIDER);
     }
 
     @Override
