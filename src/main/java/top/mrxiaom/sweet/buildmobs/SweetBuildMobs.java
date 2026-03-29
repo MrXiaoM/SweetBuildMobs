@@ -24,6 +24,8 @@ import java.util.List;
 import org.jetbrains.annotations.NotNull;
 import top.mrxiaom.sweet.buildmobs.api.IBlockDefine;
 import top.mrxiaom.sweet.buildmobs.api.ITriggerItem;
+import top.mrxiaom.sweet.buildmobs.builtin.block.BlockVanilla;
+import top.mrxiaom.sweet.buildmobs.builtin.item.ItemVanilla;
 
 public class SweetBuildMobs extends BukkitPlugin {
     public static SweetBuildMobs getInstance() {
@@ -144,6 +146,8 @@ public class SweetBuildMobs extends BukkitPlugin {
         MinecraftVersion.disableUpdateCheck();
         MinecraftVersion.disableBStats();
         MinecraftVersion.getVersion();
+        registerBlockDefine(BlockVanilla.PROVIDER);
+        registerTriggerItem(ItemVanilla.PROVIDER);
     }
 
     @Override

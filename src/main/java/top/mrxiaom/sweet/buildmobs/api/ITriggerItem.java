@@ -8,6 +8,7 @@ import org.jetbrains.annotations.Nullable;
 public interface ITriggerItem {
 
     @NotNull String key();
+    boolean isMatch(@NotNull ItemStack item);
 
     interface Provider {
         default int priority() {

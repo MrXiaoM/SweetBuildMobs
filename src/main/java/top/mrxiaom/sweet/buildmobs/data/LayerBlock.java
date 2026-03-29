@@ -97,23 +97,24 @@ public class LayerBlock {
      */
     @Nullable
     public BuildMatchResult match(@NotNull Block block, EnumFacing facing) {
-        if (!blockDefine.isMatch(block, facing)) {
-            return null;
-        }
-        MatchBlock self = new MatchBlock(this, block);
-        List<MatchBlock> allBlocks = new ArrayList<>();
-        for (LayerBlock another : build.layerBlocks()) {
-            if (another == this) {
-                allBlocks.add(self);
-            } else {
-                Block relative = getRelative(block, another, facing);
-                if (!another.blockDefine.isMatch(relative, facing)) {
-                    allBlocks.clear();
-                    return null;
+        if (blockDefine.isMatch(block, facing)) {
+            MatchBlock self = new MatchBlock(this, block);
+            List<MatchBlock> allBlocks = new ArrayList<>();
+            for (LayerBlock another : build.layerBlocks()) {
+                if (another == this) {
+                    allBlocks.add(self);
+                } else {
+                    Block relative = getRelative(block, another, facing);
+                    if (another.blockDefine.isMatch(relative, facing)) {
+                        allBlocks.add(new MatchBlock(another, relative));
+                    } else {
+                        allBlocks.clear();
+                        return null;
+                    }
                 }
-                allBlocks.add(new MatchBlock(another, relative));
             }
+            return new BuildMatchResult(build, self, allBlocks);
         }
-        return new BuildMatchResult(build, self, allBlocks);
+        return null;
     }
 }
