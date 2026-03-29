@@ -61,12 +61,13 @@ public class BuildManager extends AbstractModule implements Listener {
                 try {
                     Build loaded = Build.load(plugin, id, config);
                     loadedBuilds.put(id, loaded);
+                    if (loaded.enable()) {
+                        ITriggerItem item = loaded.triggerItem();
+                        String itemKey = item.key();
 
-                    ITriggerItem item = loaded.triggerItem();
-                    String itemKey = item.key();
-
-                    BlockGroup group = CollectionUtils.getOrPut(buildsByItemKeys, itemKey, (key1) -> new BlockGroup(item));
-                    group.addBlocks(loaded.layerBlocks());
+                        BlockGroup group = CollectionUtils.getOrPut(buildsByItemKeys, itemKey, (key1) -> new BlockGroup(item));
+                        group.addBlocks(loaded.layerBlocks());
+                    }
                 } catch (RuntimeException e) {
                     warn("[builds/" + id + "] 错误: " + e.getMessage());
                 }
