@@ -25,6 +25,8 @@ repositories {
     maven("https://repo.helpch.at/releases/")
     maven("https://jitpack.io")
     maven("https://repo.rosewooddev.io/repository/public/")
+    maven("https://repo.momirealms.net/releases/")
+    maven("https://maven.devs.beer/")
 }
 
 dependencies {
@@ -39,6 +41,10 @@ dependencies {
 
     compileOnly("com.github.Zrips:Residence:6.0.0.1") { isTransitive = false }
     compileOnly("cn.lunadeer:DominionAPI:4.7.3")
+
+    compileOnly("dev.lone:api-itemsadder:4.0.10")
+    compileOnly("net.momirealms:craft-engine-core:0.0.67")
+    compileOnly("net.momirealms:craft-engine-bukkit:0.0.67")
 
     base.library("net.kyori:adventure-api:4.22.0")
     base.library("net.kyori:adventure-platform-bukkit:4.4.0")
