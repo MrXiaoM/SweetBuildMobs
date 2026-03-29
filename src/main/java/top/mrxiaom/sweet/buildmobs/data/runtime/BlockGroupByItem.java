@@ -16,19 +16,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class BlockGroup {
-    private final ITriggerItem item;
+public class BlockGroupByItem {
     private final Map<EnumFacing, List<LayerBlock>> blockMap = new HashMap<>();
 
-    public BlockGroup(ITriggerItem item) {
-        this.item = item;
+    public BlockGroupByItem() {
         for (EnumFacing facing : EnumFacing.values()) {
             blockMap.put(facing, new ArrayList<>());
         }
-    }
-
-    public ITriggerItem item() {
-        return item;
     }
 
     public void addBlocks(List<LayerBlock> blocks) {

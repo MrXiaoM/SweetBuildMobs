@@ -30,17 +30,31 @@ public class BlockItemsAdder extends AbstractModule implements IBlockDefine.Prov
         return null;
     }
 
+    @Override
+    public @Nullable String key(@NotNull Block block) {
+        CustomBlock state = CustomBlock.byAlreadyPlaced(block);
+        if (state != null) {
+            return "itemsadder:" + state.getNamespacedID();
+        }
+        return null;
+    }
+
     public static class Impl implements IBlockDefine {
         private final String id;
-
+        private final String key;
         public Impl(String id) {
             this.id = id;
+            this.key = "itemsadder:" + id;
         }
 
         public String id() {
             return id;
         }
 
+        @Override
+        public @NotNull String key() {
+            return key;
+        }
 
         @Override
         public boolean isMatch(Block block, EnumFacing facing) {

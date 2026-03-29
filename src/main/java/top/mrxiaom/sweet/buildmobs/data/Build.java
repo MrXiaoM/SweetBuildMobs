@@ -35,6 +35,7 @@ public class Build {
     private final Map<Character, IBlockDefine> layerDefines;
     private final List<EnumFacing> layerRequireFacings;
 
+    private final boolean noItemsNeeded;
     private final ITriggerItem triggerItem;
     private final List<Character> triggerItemRequireBlocks;
     private final List<EnumAction> triggerItemRequireActions;
@@ -154,6 +155,7 @@ public class Build {
             this.layerRequireFacings.add(facing);
         }
 
+        this.noItemsNeeded = config.getBoolean("trigger-item.no-items-needed", false);
         ITriggerItem triggerItem = plugin.parseTriggerItem(config.getConfigurationSection("trigger-item.item"));
         if (triggerItem == null) {
             throw new IllegalArgumentException("无法解析 trigger-item.item 指定的物品");
@@ -344,6 +346,10 @@ public class Build {
             return true;
         }
         return layerRequireFacings.contains(facing);
+    }
+
+    public boolean noItemsNeeded() {
+        return noItemsNeeded;
     }
 
     /**

@@ -19,12 +19,14 @@ public class LayerBlock {
     private final Build build;
     private final char defineId;
     private final IBlockDefine blockDefine;
+    private final String blockKey;
     private final int layer, localX, localY;
 
     protected LayerBlock(Build build, char defineId, IBlockDefine blockDefine, int layer, int localX, int localY) {
         this.build = build;
         this.defineId = defineId;
         this.blockDefine = blockDefine;
+        this.blockKey = blockDefine.key();
         this.layer = layer;
         this.localX = localX;
         this.localY = localY;
@@ -49,6 +51,13 @@ public class LayerBlock {
      */
     public IBlockDefine blockDefine() {
         return blockDefine;
+    }
+
+    /**
+     * 获取方块类型键
+     */
+    public String blockKey() {
+        return blockKey;
     }
 
     /**

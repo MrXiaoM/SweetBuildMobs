@@ -31,14 +31,31 @@ public class BlockCraftEngine extends AbstractModule implements IBlockDefine.Pro
         return null;
     }
 
+    @Override
+    public @Nullable String key(@NotNull Block block) {
+        ImmutableBlockState state = CraftEngineBlocks.getCustomBlockState(block);
+        if (state != null) {
+            String blockId = ((Object) state.owner().value().id()).toString();
+            return "craftengine:" + blockId;
+        }
+        return null;
+    }
+
     public static class Impl implements IBlockDefine {
         private final String id;
+        private final String key;
         public Impl(String id) {
             this.id = id;
+            this.key = "craftengine:" + id;
         }
 
         public String id() {
             return id;
+        }
+
+        @Override
+        public @NotNull String key() {
+            return key;
         }
 
         @Override

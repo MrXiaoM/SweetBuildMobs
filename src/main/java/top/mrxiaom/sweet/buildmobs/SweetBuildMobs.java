@@ -110,6 +110,21 @@ public class SweetBuildMobs extends BukkitPlugin {
         return null;
     }
 
+    @Nullable
+    @Contract("null -> null")
+    public String parseBlockKey(@Nullable Block block) {
+        if (block == null || block.getType().equals(Material.AIR)) {
+            return null;
+        }
+        for (IBlockDefine.Provider provider : blockDefineRegistry) {
+            String key = provider.key(block);
+            if (key != null) {
+                return key;
+            }
+        }
+        return null;
+    }
+
     public void registerTriggerItem(ITriggerItem.Provider provider) {
         this.triggerItemRegistry.add(provider);
         this.triggerItemRegistry.sort(Comparator.comparingInt(ITriggerItem.Provider::priority));

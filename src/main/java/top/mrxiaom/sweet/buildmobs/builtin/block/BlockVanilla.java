@@ -18,10 +18,17 @@ import java.util.List;
 public class BlockVanilla implements IBlockDefine {
     public static final IBlockDefine.Provider PROVIDER = new Provider();
     private final @NotNull Material material;
+    private final @NotNull String key;
     private final @NotNull List<EnumRelativeFacing> relativeFacing;
     public BlockVanilla(@NotNull Material material, @NotNull List<EnumRelativeFacing> relativeFacing) {
         this.material = material;
+        this.key = Provider.key(material);
         this.relativeFacing = relativeFacing;
+    }
+
+    @Override
+    public @NotNull String key() {
+        return key;
     }
 
     @Override
@@ -70,6 +77,15 @@ public class BlockVanilla implements IBlockDefine {
                 return new BlockVanilla(material, relativeFacings);
             }
             return null;
+        }
+
+        @Override
+        public @Nullable String key(@NotNull Block block) {
+            return key(block.getType());
+        }
+
+        private static String key(Material material) {
+            return "minecraft:" + material.name().toLowerCase();
         }
     }
 }
