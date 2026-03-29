@@ -1,4 +1,4 @@
-package top.mrxiaom.sweet.buildmobs.depend.block;
+package top.mrxiaom.sweet.buildmobs.depend.protect;
 
 import cn.lunadeer.dominion.api.DominionAPI;
 import cn.lunadeer.dominion.api.dtos.flag.Flags;

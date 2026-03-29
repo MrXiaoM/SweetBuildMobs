@@ -1,4 +1,4 @@
-package top.mrxiaom.sweet.buildmobs.depend.block;
+package top.mrxiaom.sweet.buildmobs.depend.protect;
 
 import com.bekvon.bukkit.residence.containers.Flags;
 import com.bekvon.bukkit.residence.protection.FlagPermissions;
