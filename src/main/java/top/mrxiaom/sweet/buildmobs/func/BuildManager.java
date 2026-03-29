@@ -169,6 +169,7 @@ public class BuildManager extends AbstractModule implements Listener {
         // 计算生成位置
         Location mobLoc = build.spawnLocType().read(result)
                 .add(build.spawnLocOffset());
+        mobLoc.setDirection(result.checkFacing().toBukkit().getDirection());
 
         // 执行生成操作
         build.spawnPreActions(player, mobLoc);
