@@ -53,9 +53,9 @@ spawn-actions:
   location:
     type: CENTER_BOTTOM
     offset:
-      x: 0.5
+      x: 0
       y: 0.5
-      z: 0.5
+      z: 0
   # 生成怪物类型，方便调整起见，只支持生成一个怪物
   # 如需多个怪物，请通过一个 MythicMobs 怪物的技能来生成多个怪物
   mob-type:
