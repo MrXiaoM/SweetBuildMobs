@@ -4,6 +4,7 @@ import top.mrxiaom.pluginbase.func.AutoRegister;
 import top.mrxiaom.pluginbase.utils.Util;
 import top.mrxiaom.sweet.buildmobs.SweetBuildMobs;
 import top.mrxiaom.sweet.buildmobs.builtin.item.ItemMythicMobs;
+import top.mrxiaom.sweet.buildmobs.builtin.mob.MobMythicMobs;
 import top.mrxiaom.sweet.buildmobs.depend.mythic.IMythic;
 import top.mrxiaom.sweet.buildmobs.depend.mythic.Mythic4;
 import top.mrxiaom.sweet.buildmobs.depend.mythic.Mythic5;
@@ -21,6 +22,7 @@ public class DependMythicMobs extends AbstractModule {
         }
         if (mythicApi != null) {
             plugin.registerTriggerItem(new ItemMythicMobs.Provider(mythicApi));
+            plugin.registerMobSpawner(new MobMythicMobs.Provider(mythicApi));
             info("已挂钩 MythicMobs");
         }
     }

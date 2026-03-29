@@ -23,9 +23,12 @@ import java.util.List;
 
 import org.jetbrains.annotations.NotNull;
 import top.mrxiaom.sweet.buildmobs.api.IBlockDefine;
+import top.mrxiaom.sweet.buildmobs.api.IMobSpawner;
 import top.mrxiaom.sweet.buildmobs.api.ITriggerItem;
 import top.mrxiaom.sweet.buildmobs.builtin.block.BlockVanilla;
 import top.mrxiaom.sweet.buildmobs.builtin.item.ItemVanilla;
+import top.mrxiaom.sweet.buildmobs.builtin.mob.MobNone;
+import top.mrxiaom.sweet.buildmobs.builtin.mob.MobVanilla;
 
 public class SweetBuildMobs extends BukkitPlugin {
     public static SweetBuildMobs getInstance() {
@@ -77,6 +80,7 @@ public class SweetBuildMobs extends BukkitPlugin {
 
     private final List<IBlockDefine.Provider> blockDefineRegistry = new ArrayList<>();
     private final List<ITriggerItem.Provider> triggerItemRegistry = new ArrayList<>();
+    private final List<IMobSpawner.Provider> mobSpawnerRegistry = new ArrayList<>();
 
     public void registerBlockDefine(IBlockDefine.Provider provider) {
         this.blockDefineRegistry.add(provider);
@@ -140,6 +144,30 @@ public class SweetBuildMobs extends BukkitPlugin {
         return null;
     }
 
+    public void registerMobSpawner(IMobSpawner.Provider provider) {
+        this.mobSpawnerRegistry.add(provider);
+        this.mobSpawnerRegistry.sort(Comparator.comparingInt(IMobSpawner.Provider::priority));
+    }
+
+    public void unregisterMobSpawner(IMobSpawner.Provider provider) {
+        this.mobSpawnerRegistry.remove(provider);
+        this.mobSpawnerRegistry.sort(Comparator.comparingInt(IMobSpawner.Provider::priority));
+    }
+
+    @Nullable
+    public IMobSpawner parseMobSpawner(@Nullable ConfigurationSection config) {
+        if (config == null) {
+            return null;
+        }
+        for (IMobSpawner.Provider provider : mobSpawnerRegistry) {
+            IMobSpawner result = provider.parse(config);
+            if (result != null) {
+                return result;
+            }
+        }
+        return null;
+    }
+
     @Override
     protected void beforeLoad() {
         MinecraftVersion.replaceLogger(getLogger());
@@ -148,6 +176,8 @@ public class SweetBuildMobs extends BukkitPlugin {
         MinecraftVersion.getVersion();
         registerBlockDefine(BlockVanilla.PROVIDER);
         registerTriggerItem(ItemVanilla.PROVIDER);
+        registerMobSpawner(MobNone.PROVIDER);
+        registerMobSpawner(MobVanilla.PROVIDER);
     }
 
     @Override
