@@ -173,7 +173,7 @@ public class Build {
             int lines = layer.length;
             this.layerBlockByLoc[layerNumber] = new LayerBlock[lines][];
             for (int i = 0; i < lines; i++) {
-                int y = lines - i;
+                int y = lines - i - 1;
                 int width = layer[i].length;
                 this.layerBlockByLoc[layerNumber][y] = new LayerBlock[width];
                 for (int x = 0; x < width; x++) {
