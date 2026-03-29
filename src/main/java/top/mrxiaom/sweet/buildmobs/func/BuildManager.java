@@ -34,6 +34,8 @@ import java.util.Map;
 public class BuildManager extends AbstractModule implements Listener {
     private final Map<String, Build> loadedBuilds = new HashMap<>();
     private final Map<String, BlockGroup> buildsByItemKeys = new HashMap<>();
+    private boolean debugHighlightBlocks = false;
+    private boolean debugDisableSpawn = false;
     public BuildManager(SweetBuildMobs plugin) {
         super(plugin);
         registerEvents();
@@ -46,6 +48,8 @@ public class BuildManager extends AbstractModule implements Listener {
 
     @Override
     public void reloadConfig(MemoryConfiguration pluginConfig) {
+        this.debugHighlightBlocks = pluginConfig.getBoolean("debug.highlight-blocks", false);
+        this.debugDisableSpawn = pluginConfig.getBoolean("debug.disable-spawn", false);
         loadedBuilds.clear();
         buildsByItemKeys.clear();
         for (String folderPath : pluginConfig.getStringList("builds-folders")) {
@@ -101,6 +105,30 @@ public class BuildManager extends AbstractModule implements Listener {
 
         BuildMatchResult result = group.matchBuild(block, action);
         if (result == null) return;
+
+        if (debugHighlightBlocks) {
+            // 高亮显示所有匹配的方块，持续 5 秒
+            World world = block.getWorld();
+            List<Entity> highlight = new ArrayList<>();
+            for (MatchBlock matchBlock : result.allBlocks()) {
+                Location loc = matchBlock.block().getLocation();
+                highlight.add(world.spawn(loc, Shulker.class, shulker -> {
+                    shulker.setInvisible(true);
+                    shulker.setInvulnerable(true);
+                    shulker.setGlowing(true);
+                    shulker.setGravity(false);
+                    shulker.setCollidable(false);
+                    shulker.setAI(false);
+                    shulker.setSilent(true);
+                }));
+            }
+            plugin.getScheduler().runTaskLater(() -> {
+                for (Entity entity : highlight) {
+                    entity.remove();
+                }
+            }, 5 * 20L);
+        }
+        if (debugDisableSpawn) return;
 
         // TODO: 执行生成操作等等
     }

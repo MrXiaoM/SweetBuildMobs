@@ -1,4 +1,11 @@
 
+# 调试选项
+debug:
+  # 在出现构筑匹配时，生成隐形发光潜影贝用于标注所有方块位置
+  highlight-blocks: false
+  # 禁用构筑配置中 spawn-actions 的任何操作，用于测试
+  disable-spawn: false
+
 # builds 目录位置
 builds-folders:
   - './builds'
