@@ -1,17 +1,20 @@
 package top.mrxiaom.sweet.buildmobs.func;
 
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.MemoryConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.Player;
 import org.bukkit.entity.Shulker;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.inventory.ItemStack;
 import top.mrxiaom.pluginbase.func.AutoRegister;
 import top.mrxiaom.pluginbase.utils.CollectionUtils;
 import top.mrxiaom.pluginbase.utils.ConfigUtils;
@@ -92,19 +95,30 @@ public class BuildManager extends AbstractModule implements Listener {
     public void onInteract(PlayerInteractEvent e) {
         if (e.useItemInHand() == Event.Result.DENY) return;
         if (e.useInteractedBlock() == Event.Result.DENY) return;
+        Player player = e.getPlayer();
         Block block = e.getClickedBlock();
         if (block == null) return;
         EnumAction action = EnumAction.fromEvent(e);
         if (action == null || isOffHand(e)) return;
 
-        String itemKey = plugin.parseItemKey(e.getItem());
+        ItemStack item = e.getItem();
+        String itemKey = plugin.parseItemKey(item);
         if (itemKey == null) return;
 
+        // 获取物品对应的方块分组
         BlockGroup group = buildsByItemKeys.get(itemKey);
         if (group == null) return;
 
+        // 通过分组配置，解析并匹配构筑
         BuildMatchResult result = group.matchBuild(block, action);
         if (result == null) return;
+
+        // 检查方块是否在其它插件的保护区内
+        for (MatchBlock matchBlock : result.allBlocks()) {
+            if (plugin.isProtectedBlock(player, matchBlock.block())) {
+                return;
+            }
+        }
 
         if (debugHighlightBlocks) {
             // 高亮显示所有匹配的方块，持续 5 秒
@@ -130,6 +144,35 @@ public class BuildManager extends AbstractModule implements Listener {
         }
         if (debugDisableSpawn) return;
 
-        // TODO: 执行生成操作等等
+        Build build = result.build();
+
+        // 检查并扣除物品
+        int costCount = build.spawnCostItemsCount();
+        if (costCount > 0) {
+            int amount = item.getAmount();
+            if (amount < costCount) {
+                build.spawnCostItemsDeny(player);
+                return;
+            } else {
+                item.setAmount(Math.max(0, amount - costCount));
+                Util.submitInvUpdate(player);
+            }
+        }
+
+        // 移除方块
+        for (MatchBlock matchBlock : result.allBlocks()) {
+            if (build.shouldRemoveBlock(matchBlock)) {
+                matchBlock.block().setType(Material.AIR);
+            }
+        }
+
+        // 计算生成位置
+        Location mobLoc = build.spawnLocType().read(result)
+                .add(build.spawnLocOffset());
+
+        // 执行生成操作
+        build.spawnPreActions(player, mobLoc);
+        build.spawnMobType().spawn(mobLoc);
+        build.spawnPostActions(player, mobLoc);
     }
 }

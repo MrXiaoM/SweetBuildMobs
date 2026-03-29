@@ -2,7 +2,9 @@ package top.mrxiaom.sweet.buildmobs;
 
 import de.tr7zw.changeme.nbtapi.utils.MinecraftVersion;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
@@ -195,6 +197,11 @@ public class SweetBuildMobs extends BukkitPlugin {
             }
         }
         return null;
+    }
+
+    public boolean isProtectedBlock(@NotNull Player player, @NotNull Block block) {
+        // TODO: 检查方块是否在领地等保护区域内，应当添加 registry 方便注册接口
+        return false;
     }
 
     @Override

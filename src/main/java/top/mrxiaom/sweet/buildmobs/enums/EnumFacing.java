@@ -2,6 +2,7 @@ package top.mrxiaom.sweet.buildmobs.enums;
 
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import top.mrxiaom.sweet.buildmobs.data.LayerBlock;
 
 /**
  * 方向轴置换枚举
@@ -65,6 +66,10 @@ public enum EnumFacing {
     public Block getRelative(Block block, int layer, int localX, int localY) {
         int[] offset = toWorldOffset(layer, localX, localY);
         return block.getRelative(offset[0], offset[1], offset[2]);
+    }
+
+    public int[] toWorldOffset(LayerBlock block) {
+        return toWorldOffset(block.layer(), block.localX(), block.localY());
     }
 
     public int[] toWorldOffset(int layer, int localX, int localY) {

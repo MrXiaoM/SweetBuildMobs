@@ -41,5 +41,35 @@ trigger-item:
   require-actions: [ RIGHT ]
 
 # 生成操作
-spawn-actions: {}
-# TODO
+spawn-actions:
+  # 消耗物品数量
+  cost-items:
+    count: 1
+    deny-actions:
+      - message: '&e至少需要%count%个物品来召唤'
+  # 需要移除什么方块，任意一项为 * 则代表移除所有方块
+  remove-blocks: [ '*' ]
+  # 怪物生成位置配置
+  location:
+    type: CENTER_BOTTOM
+    offset:
+      x: 0.5
+      y: 0.5
+      z: 0.5
+  # 生成怪物类型，方便调整起见，只支持生成一个怪物
+  # 如需多个怪物，请通过一个 MythicMobs 怪物的技能来生成多个怪物
+  mob-type:
+    type: MythicMobs
+    mythic: ExampleMob
+  # 条件均满足时，生成怪物前执行的命令，除了支持 PAPI 变量外，额外支持以下变量
+  # %mob_x% - 已指定的怪物X坐标
+  # %mob_y% - 已指定的怪物Y坐标
+  # %mob_z% - 已指定的怪物Z坐标
+  # %mob_x_block% - 已指定的怪物X坐标(整数)
+  # %mob_y_block% - 已指定的怪物Y坐标(整数)
+  # %mob_z_block% - 已指定的怪物Z坐标(整数)
+  pre-actions: []
+  # 条件均满足时，生成怪物后执行的命令
+  # 变量支持情况同上
+  post-actions:
+    - message: '&b你召唤了示例怪物'

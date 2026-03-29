@@ -1,11 +1,20 @@
 package top.mrxiaom.sweet.buildmobs.data;
 
+import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.entity.Player;
+import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import top.mrxiaom.pluginbase.actions.ActionProviders;
+import top.mrxiaom.pluginbase.api.IAction;
+import top.mrxiaom.pluginbase.utils.ListPair;
 import top.mrxiaom.pluginbase.utils.Util;
 import top.mrxiaom.sweet.buildmobs.SweetBuildMobs;
+import top.mrxiaom.sweet.buildmobs.api.ILocProvider;
+import top.mrxiaom.sweet.buildmobs.api.IMobSpawner;
+import top.mrxiaom.sweet.buildmobs.data.match.MatchBlock;
 import top.mrxiaom.sweet.buildmobs.enums.EnumAction;
 import top.mrxiaom.sweet.buildmobs.enums.EnumFacing;
 import top.mrxiaom.sweet.buildmobs.api.IBlockDefine;
@@ -25,9 +34,19 @@ public class Build {
     private final List<char[][]> layerList;
     private final Map<Character, IBlockDefine> layerDefines;
     private final List<EnumFacing> layerRequireFacings;
+
     private final ITriggerItem triggerItem;
     private final List<Character> triggerItemRequireBlocks;
     private final List<EnumAction> triggerItemRequireActions;
+
+    private final int spawnCostItemsCount;
+    private final List<IAction> spawnCostItemsDeny;
+    private final List<Character> spawnRemoveBlocks;
+    private final ILocProvider spawnLocType;
+    private final Vector spawnLocOffset;
+    private final IMobSpawner spawnMobType;
+    private final List<IAction> spawnPreActions;
+    private final List<IAction> spawnPostActions;
 
     private final List<LayerBlock> layerBlockList;
     private final LayerBlock[][][] layerBlockByLoc;
@@ -160,6 +179,40 @@ public class Build {
             this.triggerItemRequireActions.add(action);
         }
 
+        this.spawnCostItemsCount = config.getInt("spawn-actions.cost-items.count");
+        this.spawnCostItemsDeny = ActionProviders.loadActions(config, "spawn-actions.cost-items.deny-actions");
+        this.spawnRemoveBlocks = new ArrayList<>();
+        for (String s : config.getStringList("spawn-actions.remove-blocks")) {
+            if (s.length() != 1 || !layerDefines.containsKey(s.charAt(0))) {
+                if (s.equals("*")) {
+                    this.spawnRemoveBlocks.clear();
+                    this.spawnRemoveBlocks.add('*');
+                    break;
+                }
+                warn("spawn-actions.remove-blocks 指定的方块 '" + s + "' 未定义");
+                continue;
+            }
+            this.spawnRemoveBlocks.add(s.charAt(0));
+        }
+        ILocProvider spawnLocType = plugin.parseLocProvider(config.getConfigurationSection("spawn-actions.location"));
+        if (spawnLocType == null) {
+            throw new IllegalArgumentException("spawn-actions.location 的值无效");
+        }
+        this.spawnLocType = spawnLocType;
+        double spawnLocOffsetX = config.getDouble("spawn-actions.location.offset.x");
+        double spawnLocOffsetY = config.getDouble("spawn-actions.location.offset.y");
+        double spawnLocOffsetZ = config.getDouble("spawn-actions.location.offset.z");
+        this.spawnLocOffset = new Vector(spawnLocOffsetX, spawnLocOffsetY, spawnLocOffsetZ);
+
+        IMobSpawner spawnMobType = plugin.parseMobSpawner(config.getConfigurationSection("spawn-actions.mob-type"));
+        if (spawnMobType == null) {
+            throw new IllegalArgumentException("无法解析 spawn-actions.mob-type 指定的生物类型");
+        }
+        this.spawnMobType = spawnMobType;
+
+        this.spawnPreActions = ActionProviders.loadActions(config, "spawn-actions.pre-actions");
+        this.spawnPostActions = ActionProviders.loadActions(config, "spawn-actions.post-actions");
+
         this.layerBlockList = new ArrayList<>();
         this.layerBlockByLoc = new LayerBlock[this.layerList.size()][][];
         this.postLoad();
@@ -212,6 +265,14 @@ public class Build {
      */
     public boolean enable() {
         return enable;
+    }
+
+    /**
+     * 获取这个构筑在世界坐标系上的长宽高
+     * @return [0] x, [1] y, [2] z
+     */
+    public int[] getLayerSize(EnumFacing facing) {
+        return facing.toWorldOffset(getLayerLength(), getLayerWidth(), getLayerHeight());
     }
 
     /**
@@ -344,6 +405,92 @@ public class Build {
             return false;
         }
         return !worldsBlackList.contains(name);
+    }
+
+    /**
+     * 获取生成怪物需要消耗的物品数量
+     */
+    public int spawnCostItemsCount() {
+        return spawnCostItemsCount;
+    }
+
+    /**
+     * 获取生成怪物需要移除的方块列表
+     * @return 如果列表中包含 <code>'*'</code>，则代表全部移除
+     */
+    public List<Character> spawnRemoveBlocks() {
+        return Collections.unmodifiableList(spawnRemoveBlocks);
+    }
+
+    /**
+     * 检查是否需要在生成怪物前移除某个方块
+     * @param block 已匹配的方块
+     */
+    public boolean shouldRemoveBlock(MatchBlock block) {
+        if (spawnRemoveBlocks.contains('*')) {
+            return true;
+        }
+        return spawnRemoveBlocks.contains(block.layerBlock().defineId());
+    }
+
+    /**
+     * 执行持有物品数量不足时执行的操作
+     * @param player 目标玩家
+     */
+    public void spawnCostItemsDeny(Player player) {
+        ListPair<String, Object> r = new ListPair<>();
+        r.add("%count%", spawnCostItemsCount);
+        ActionProviders.run(plugin, player, spawnCostItemsDeny, r);
+    }
+
+    /**
+     * 获取怪物生成位置类型
+     */
+    public ILocProvider spawnLocType() {
+        return spawnLocType;
+    }
+
+    /**
+     * 获取怪物生成位置偏移
+     */
+    public Vector spawnLocOffset() {
+        return spawnLocOffset;
+    }
+
+    /**
+     * 获取要生成的怪物类型
+     */
+    public IMobSpawner spawnMobType() {
+        return spawnMobType;
+    }
+
+    /**
+     * 在生成怪物前执行操作
+     * @param player 玩家
+     * @param mobLoc 怪物坐标
+     */
+    public void spawnPreActions(Player player, Location mobLoc) {
+        spawnActions(player, spawnPreActions, mobLoc);
+    }
+
+    /**
+     * 在生成怪物后执行操作
+     * @param player 玩家
+     * @param mobLoc 怪物坐标
+     */
+    public void spawnPostActions(Player player, Location mobLoc) {
+        spawnActions(player, spawnPostActions, mobLoc);
+    }
+
+    private void spawnActions(Player player, List<IAction> actions, Location mobLoc) {
+        ListPair<String, Object> r = new ListPair<>();
+        r.add("%mob_x%", mobLoc.getX());
+        r.add("%mob_y%", mobLoc.getY());
+        r.add("%mob_z%", mobLoc.getZ());
+        r.add("%mob_x_block%", mobLoc.getBlockX());
+        r.add("%mob_y_block%", mobLoc.getBlockY());
+        r.add("%mob_z_block%", mobLoc.getBlockZ());
+        ActionProviders.run(plugin, player, actions, r);
     }
 
     /**

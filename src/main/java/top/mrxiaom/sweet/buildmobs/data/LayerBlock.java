@@ -113,7 +113,7 @@ public class LayerBlock {
                     }
                 }
             }
-            return new BuildMatchResult(build, self, allBlocks);
+            return new BuildMatchResult(build, self, allBlocks, facing);
         }
         return null;
     }
