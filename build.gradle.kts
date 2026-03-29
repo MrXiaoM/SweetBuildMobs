@@ -37,6 +37,9 @@ dependencies {
     compileOnly("io.lumine:Mythic:5.6.2")
     compileOnly("io.lumine:LumineUtils:1.20-SNAPSHOT")
 
+    compileOnly("com.github.Zrips:Residence:6.0.0.1") { isTransitive = false }
+    compileOnly("cn.lunadeer:DominionAPI:4.7.3")
+
     base.library("net.kyori:adventure-api:4.22.0")
     base.library("net.kyori:adventure-platform-bukkit:4.4.0")
     base.library("net.kyori:adventure-text-minimessage:4.22.0")

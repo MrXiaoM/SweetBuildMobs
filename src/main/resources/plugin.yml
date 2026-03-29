@@ -6,6 +6,8 @@ depend: []
 softdepend: 
   - PlaceholderAPI
   - MythicMobs
+  - Residence
+  - Dominion
 authors: [ MrXiaoM ]
 folia-supported: true
 libraries:

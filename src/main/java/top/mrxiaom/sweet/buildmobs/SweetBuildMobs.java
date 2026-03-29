@@ -25,10 +25,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import org.jetbrains.annotations.NotNull;
-import top.mrxiaom.sweet.buildmobs.api.IBlockDefine;
-import top.mrxiaom.sweet.buildmobs.api.ILocProvider;
-import top.mrxiaom.sweet.buildmobs.api.IMobSpawner;
-import top.mrxiaom.sweet.buildmobs.api.ITriggerItem;
+import top.mrxiaom.sweet.buildmobs.api.*;
 import top.mrxiaom.sweet.buildmobs.builtin.block.BlockVanilla;
 import top.mrxiaom.sweet.buildmobs.builtin.item.ItemVanilla;
 import top.mrxiaom.sweet.buildmobs.builtin.loc.LocCenterBottom;
@@ -87,6 +84,7 @@ public class SweetBuildMobs extends BukkitPlugin {
     private final List<ITriggerItem.Provider> triggerItemRegistry = new ArrayList<>();
     private final List<IMobSpawner.Provider> mobSpawnerRegistry = new ArrayList<>();
     private final List<ILocProvider.Provider> locProviderRegistry = new ArrayList<>();
+    private final List<IBlockProtectChecker> protectRegistry = new ArrayList<>();
 
     public void registerBlockDefine(IBlockDefine.Provider provider) {
         this.blockDefineRegistry.add(provider);
@@ -199,8 +197,23 @@ public class SweetBuildMobs extends BukkitPlugin {
         return null;
     }
 
+    public void registerBlockProtectChecker(IBlockProtectChecker checker) {
+        this.protectRegistry.add(checker);
+        this.protectRegistry.sort(Comparator.comparingInt(IBlockProtectChecker::priority));
+    }
+
+    public void unregisterBlockProtectChecker(IBlockProtectChecker checker) {
+        this.protectRegistry.remove(checker);
+        this.protectRegistry.sort(Comparator.comparingInt(IBlockProtectChecker::priority));
+    }
+
     public boolean isProtectedBlock(@NotNull Player player, @NotNull Block block) {
-        // TODO: 检查方块是否在领地等保护区域内，应当添加 registry 方便注册接口
+        // 检查方块是否在领地等保护区域内
+        for (IBlockProtectChecker checker : protectRegistry) {
+            if (checker.isProtected(player, block)) {
+                return true;
+            }
+        }
         return false;
     }
 
