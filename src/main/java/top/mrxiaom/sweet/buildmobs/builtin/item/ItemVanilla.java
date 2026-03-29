@@ -33,6 +33,12 @@ public class ItemVanilla implements ITriggerItem {
 
     public static class Provider implements ITriggerItem.Provider {
         private Provider() {}
+
+        @Override
+        public int priority() {
+            return 2000;
+        }
+
         @Override
         public @Nullable ITriggerItem parse(@NotNull ConfigurationSection config) {
             if ("Vanilla".equalsIgnoreCase(config.getString("type"))) {

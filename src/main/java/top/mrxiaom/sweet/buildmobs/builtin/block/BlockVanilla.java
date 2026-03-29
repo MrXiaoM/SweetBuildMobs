@@ -49,6 +49,12 @@ public class BlockVanilla implements IBlockDefine {
 
     public static class Provider implements IBlockDefine.Provider {
         private Provider() {}
+
+        @Override
+        public int priority() {
+            return 2000;
+        }
+
         @Override
         public @Nullable IBlockDefine parse(@NotNull ConfigurationSection config) {
             if ("Vanilla".equalsIgnoreCase(config.getString("type"))) {
