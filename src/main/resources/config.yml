@@ -16,3 +16,5 @@ enable-triggers:
   item: true
   # 玩家放置方块触发
   place: true
+  # 活塞推拉触发
+  piston: true

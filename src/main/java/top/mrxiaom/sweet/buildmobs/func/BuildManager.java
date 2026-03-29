@@ -49,7 +49,7 @@ public class BuildManager extends AbstractModule implements Listener {
     private final Map<String, BlockGroupByBlock> buildsByBlockKeys = new HashMap<>();
     private boolean debugHighlightBlocks = false;
     private boolean debugDisableSpawn = false;
-    private boolean disableTriggerItem, disableTriggerPlace;
+    private boolean disableTriggerItem, disableTriggerPlace, disableTriggerPiston;
     public BuildManager(SweetBuildMobs plugin) {
         super(plugin);
         registerEvents();
@@ -66,6 +66,7 @@ public class BuildManager extends AbstractModule implements Listener {
         this.debugDisableSpawn = pluginConfig.getBoolean("debug.disable-spawn", false);
         this.disableTriggerItem = !pluginConfig.getBoolean("enable-triggers.item", true);
         this.disableTriggerPlace = !pluginConfig.getBoolean("enable-triggers.place", true);
+        this.disableTriggerPiston = !pluginConfig.getBoolean("enable-triggers.piston", true);
 
         loadedBuilds.clear();
         buildsByItemKeys.clear();
@@ -233,6 +234,29 @@ public class BuildManager extends AbstractModule implements Listener {
             Block block = world.getBlockAt(b.getX(), b.getY(), b.getZ());
             handleBlockChanged(player, block);
         });
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onPistonExtended(BlockPistonExtendEvent e) {
+        if (disableTriggerPiston || e.isCancelled()) return;
+        List<Block> blocks = new ArrayList<>(e.getBlocks());
+        BlockFace direction = e.getDirection();
+        plugin.getScheduler().runTaskLater(() -> handleBlockMovedByPiston(blocks, direction), 3);
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onPistonRetracted(BlockPistonRetractEvent e) {
+        if (disableTriggerPiston || e.isCancelled()) return;
+        List<Block> blocks = new ArrayList<>(e.getBlocks());
+        BlockFace direction = e.getDirection();
+        plugin.getScheduler().runTaskLater(() -> handleBlockMovedByPiston(blocks, direction), 3);
+    }
+
+    private void handleBlockMovedByPiston(@NotNull List<Block> blocks, @NotNull BlockFace direction) {
+        for (Block b : blocks) {
+            Block block = b.getRelative(direction);
+            handleBlockChanged(null, block);
+        }
     }
 
     private void handleBlockChanged(@Nullable Player player, @NotNull Block block) {
