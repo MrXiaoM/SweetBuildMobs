@@ -2,6 +2,9 @@ package top.mrxiaom.sweet.buildmobs.enums;
 
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.entity.Entity;
+import org.bukkit.util.Vector;
+import org.jetbrains.annotations.Nullable;
 import top.mrxiaom.sweet.buildmobs.data.LayerBlock;
 
 /**
@@ -68,16 +71,74 @@ public enum EnumFacing {
         return block.getRelative(offset[0], offset[1], offset[2]);
     }
 
+    /**
+     * 将本地坐标系转换为世界坐标系
+     * @param block 方块配置
+     * @return [0]=x, [1]=y, [2]=z
+     */
     public int[] toWorldOffset(LayerBlock block) {
         return toWorldOffset(block.layer(), block.localX(), block.localY());
     }
 
+    /**
+     * 将本地坐标系转换为世界坐标系
+     * @param layer Layer轴的值
+     * @param localX 本地X轴的值
+     * @param localY 本地Y轴的值
+     * @return [0]=x, [1]=y, [2]=z
+     */
     public int[] toWorldOffset(int layer, int localX, int localY) {
         int[] offset = new int[3];
-        offset[axisLayer.index] = layer * axisLayer.multiple;
-        offset[axisLocalX.index] = localX * axisLocalX.multiple;
-        offset[axisLocalY.index] = localY * axisLocalY.multiple;
+        offset[axisLayer.index] = layer * axisLayer.direction;
+        offset[axisLocalX.index] = localX * axisLocalX.direction;
+        offset[axisLocalY.index] = localY * axisLocalY.direction;
         return offset;
+    }
+
+    /**
+     * 将世界坐标系转换为本地坐标系
+     * @param offsetX 世界X轴的值
+     * @param offsetY 世界Y轴的值
+     * @param offsetZ 世界Z轴的值
+     * @return [0]=layer, [1]=localX, [2]=localY
+     */
+    public int[] toLocalOffset(int offsetX, int offsetY, int offsetZ) {
+        int[] worldOffset = new int[] { offsetX, offsetY, offsetZ };
+        int[] offset = new int[3];
+        offset[0] = worldOffset[axisLayer.index] * axisLayer.direction;
+        offset[1] = worldOffset[axisLocalX.index] * axisLocalX.direction;
+        offset[2] = worldOffset[axisLocalY.index] * axisLocalY.direction;
+        return offset;
+    }
+
+    /**
+     * 从实体视角面向方向解析方位枚举
+     * @param entity 实体
+     * @param opposite 是否返回反向的方向
+     * @return 未指向任何方位时返回 <code>null</code>
+     */
+    @Nullable
+    public static EnumFacing fromDirection(Entity entity, boolean opposite) {
+        return fromDirection(entity.getLocation().getDirection(), opposite);
+    }
+
+    /**
+     * 从面向视角解析方位枚举
+     * @param direction 面向方向
+     * @param opposite 是否返回反向的方向
+     * @return 未指向任何方位时返回 <code>null</code>
+     */
+    @Nullable
+    public static EnumFacing fromDirection(Vector direction, boolean opposite) {
+        double x = direction.getX(), z = direction.getZ();
+        double ax = Math.abs(x), az = Math.abs(z);
+
+        if (ax < 1e-9 && az < 1e-9) {
+            return null;
+        }
+        return (ax >= az)
+                ? (((x > 0) != opposite) ? EAST : WEST)
+                : (((z > 0) != opposite) ? SOUTH : NORTH);
     }
 
     private enum Axis {
@@ -89,10 +150,10 @@ public enum EnumFacing {
         Z_NEGATIVE(2, -1),
         ;
         private final int index;
-        private final int multiple;
-        Axis(int index, int multiple) {
+        private final int direction;
+        Axis(int index, int direction) {
             this.index = index;
-            this.multiple = multiple;
+            this.direction = direction;
         }
     }
 }
