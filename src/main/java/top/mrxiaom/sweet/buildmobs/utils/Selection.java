@@ -57,7 +57,11 @@ public class Selection {
         ConfigurationSection config = new MemoryConfiguration();
 
         // 获取选取区域在本地坐标系的尺寸
-        int[] localSize = facing.toLocalOffset(toX - fromX + 1, toY - fromY + 1, toZ - fromZ + 1);
+        int[] localSize = facing.toLocalOffset(
+                Math.abs(toX - fromX) + 1,
+                Math.abs(toY - fromY) + 1,
+                Math.abs(toZ - fromZ) + 1
+        );
         Map<Material, Integer> numbers = new HashMap<>();
         Map<Integer, char[][]> layers = new HashMap<>();
         for (int y = fromY; y < toY; y++)
