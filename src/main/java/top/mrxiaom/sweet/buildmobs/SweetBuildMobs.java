@@ -8,6 +8,7 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 import top.mrxiaom.pluginbase.BukkitPlugin;
+import top.mrxiaom.pluginbase.func.LanguageManager;
 import top.mrxiaom.pluginbase.paper.PaperFactory;
 import top.mrxiaom.pluginbase.utils.inventory.InventoryFactory;
 import top.mrxiaom.pluginbase.utils.item.ItemEditor;
@@ -241,6 +242,14 @@ public class SweetBuildMobs extends BukkitPlugin {
         registerMobSpawner(MobVanilla.PROVIDER);
 
         registerLocProvider(LocCenterBottom.PROVIDER);
+    }
+
+    @Override
+    protected void beforeEnable() {
+        LanguageManager.inst()
+                .setLangFile("messages.yml")
+                .register(Messages.class)
+                .reload();
     }
 
     @Override
