@@ -1,6 +1,5 @@
 package top.mrxiaom.sweet.buildmobs;
 
-import de.tr7zw.changeme.nbtapi.utils.MinecraftVersion;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.ConfigurationSection;
@@ -234,11 +233,6 @@ public class SweetBuildMobs extends BukkitPlugin {
 
     @Override
     protected void beforeLoad() {
-        MinecraftVersion.replaceLogger(getLogger());
-        MinecraftVersion.disableUpdateCheck();
-        MinecraftVersion.disableBStats();
-        MinecraftVersion.getVersion();
-
         registerBlockDefine(BlockVanilla.PROVIDER);
 
         registerTriggerItem(ItemVanilla.PROVIDER);
