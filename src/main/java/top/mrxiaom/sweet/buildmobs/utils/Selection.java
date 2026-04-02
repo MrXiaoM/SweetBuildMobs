@@ -218,24 +218,28 @@ public class Selection {
         public void show(@NotNull Player player, @Nullable Particle face, @Nullable Particle horizontalEdge, @Nullable Particle verticalEdge, @Nullable Particle corner) {
             if (face != null) {
                 for (double[] p : faces) {
-                    player.spawnParticle(face, p[0], p[1], p[2], 1);
+                    spawn(player, face, p);
                 }
             }
             if (horizontalEdge != null) {
                 for (double[] p : horizontalEdges) {
-                    player.spawnParticle(horizontalEdge, p[0], p[1], p[2], 1);
+                    spawn(player, horizontalEdge, p);
                 }
             }
             if (verticalEdge != null) {
                 for (double[] p : verticalEdges) {
-                    player.spawnParticle(verticalEdge, p[0], p[1], p[2], 1);
+                    spawn(player, verticalEdge, p);
                 }
             }
             if (corner != null) {
                 for (double[] p : corners) {
-                    player.spawnParticle(corner, p[0], p[1], p[2], 1);
+                    spawn(player, corner, p);
                 }
             }
+        }
+
+        private void spawn(Player player, Particle particle, double[] p) {
+            player.spawnParticle(particle, p[0], p[1], p[2], 1, 0.0, 0.0, 0.0);
         }
     }
 
