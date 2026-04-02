@@ -22,6 +22,8 @@ import top.mrxiaom.sweet.buildmobs.utils.Selection;
 import java.io.File;
 import java.util.*;
 
+import static top.mrxiaom.pluginbase.utils.CollectionUtils.startsWith;
+
 @AutoRegister
 public class CommandMain extends AbstractModule implements CommandExecutor, TabCompleter, Listener {
     public CommandMain(SweetBuildMobs plugin) {
@@ -89,7 +91,7 @@ public class CommandMain extends AbstractModule implements CommandExecutor, TabC
                 list.add("select");
                 list.add("reload");
             }
-            return startsWith(list, args[0]);
+            return startsWith(args[0], list);
         }
         if (args.length == 2) {
             if (op && "select".equalsIgnoreCase(args[0]) && sender instanceof Player) {
@@ -97,16 +99,9 @@ public class CommandMain extends AbstractModule implements CommandExecutor, TabC
                 list.add("start");
                 list.add("stop");
                 list.add("save");
-                return startsWith(list, args[1]);
+                return startsWith(args[1], list);
             }
         }
         return Collections.emptyList();
-    }
-
-    public List<String> startsWith(Collection<String> list, String s) {
-        String s1 = s.toLowerCase();
-        List<String> stringList = new ArrayList<>(list);
-        stringList.removeIf(it -> !it.toLowerCase().startsWith(s1));
-        return stringList;
     }
 }
