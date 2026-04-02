@@ -17,4 +17,4 @@ libraries:
 commands:
   sweetbuildmobs:
     description: 'The main command of SweetBuildMobs'
-    aliases: [ sbm, sbuildmobs, sbuildmob, sbmobs, sbmob ]
+    aliases: [ sbm, sbuildmobs, sbuildmob, sbmobs, sbmob, buildmobs, buildmob ]
