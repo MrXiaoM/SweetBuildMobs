@@ -9,6 +9,7 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -70,6 +71,14 @@ public class SelectionManager extends AbstractModule implements Listener {
         }
     }
 
+    private static boolean isOffHand(PlayerInteractEvent e) {
+        try {
+            return EquipmentSlot.OFF_HAND.equals(e.getHand());
+        } catch (LinkageError ignored) {
+            return false;
+        }
+    }
+
     @EventHandler
     public void onInteract(PlayerInteractEvent e) {
         if (e.useInteractedBlock() == Event.Result.DENY) return;
@@ -80,8 +89,8 @@ public class SelectionManager extends AbstractModule implements Listener {
         SelectionData data = selectionMap.get(player.getUniqueId());
         if (data == null) return;
         ItemStack item = e.getItem();
-        // 不处理玩家放置方块情况
-        if (item != null && item.getType().isBlock()) return;
+        // 不处理玩家放置方块、副手点击的情况
+        if (item != null && item.getType().isBlock() || isOffHand(e)) return;
         e.setCancelled(true);
         Boolean leftClick = isLeftClickBlock(e.getAction());
         if (leftClick == null) return;
