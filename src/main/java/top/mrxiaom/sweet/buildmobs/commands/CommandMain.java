@@ -1,17 +1,17 @@
 package top.mrxiaom.sweet.buildmobs.commands;
 
+import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
-import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import top.mrxiaom.pluginbase.func.AutoRegister;
 import top.mrxiaom.pluginbase.utils.Pair;
+import top.mrxiaom.pluginbase.utils.Util;
 import top.mrxiaom.sweet.buildmobs.Messages;
 import top.mrxiaom.sweet.buildmobs.SweetBuildMobs;
 import top.mrxiaom.sweet.buildmobs.enums.EnumFacing;
@@ -20,6 +20,10 @@ import top.mrxiaom.sweet.buildmobs.func.SelectionManager;
 import top.mrxiaom.sweet.buildmobs.utils.Selection;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 import static top.mrxiaom.pluginbase.utils.CollectionUtils.startsWith;
@@ -56,17 +60,40 @@ public class CommandMain extends AbstractModule implements CommandExecutor, TabC
                     return Messages.Command.select__save__not_selected.tm(player);
                 }
                 EnumFacing facing = EnumFacing.fromDirection(player, true);
-                ConfigurationSection blockLayers = selection.saveBlockLayers(facing)
+                Selection.Saved blockLayers = selection.saveBlockLayers(facing)
                         .orElseGet(reason -> {
                             String message = reason.getMessage();
                             Messages.Command.select__save__error.tm(player, Pair.of("%error%", message));
                             return null;
                         });
                 if (blockLayers != null) {
-                    YamlConfiguration config = new YamlConfiguration();
-                    config.set("block-layers", blockLayers);
+                    StringJoiner lines = new StringJoiner("\n");
+                    lines.add("block-layers:");
+                    lines.add("  layers:");
+                    for (Map.Entry<Integer, List<String>> entry : blockLayers.layers().entrySet()) {
+                        lines.add("    " + entry.getKey() + ":");
+                        for (String s : entry.getValue()) {
+                            lines.add("      - '" + s + "'");
+                        }
+                    }
+                    lines.add("  defines:");
+                    for (Map.Entry<Character, Material> entry : blockLayers.defines().entrySet()) {
+                        lines.add("    " + entry.getKey() + ":");
+                        lines.add("      type: Vanilla");
+                        lines.add("      material: " + entry.getValue().name().toUpperCase());
+                    }
+                    lines.add("");
+                    manager.resetSelection(player);
                     try {
-                        config.save(new File(plugin.getDataFolder(), "output.yml"));
+                        File file = new File(plugin.getDataFolder(), "output.yml");
+                        File parent = file.getParentFile();
+                        if (parent != null && !parent.exists()) {
+                            Util.mkdirs(parent);
+                        }
+                        try (FileOutputStream output = new FileOutputStream(file);
+                             Writer writer = new OutputStreamWriter(output, StandardCharsets.UTF_8)) {
+                            writer.write(lines.toString());
+                        }
                         return Messages.Command.select__save__success.tm(player);
                     } catch (Throwable t) {
                         Messages.Command.select__save__error.tm(player, Pair.of("%error%", t.getMessage()));

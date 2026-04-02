@@ -88,10 +88,31 @@ public enum EnumFacing {
      * @return [0]=x, [1]=y, [2]=z
      */
     public int[] toWorldOffset(int layer, int localX, int localY) {
+        return toWorldOffset(layer, localX, localY, false);
+    }
+
+    /**
+     * 将本地坐标系转换为世界坐标系
+     * @param layer Layer轴的值
+     * @param localX 本地X轴的值
+     * @param localY 本地Y轴的值
+     * @param absolute 是否取绝对值
+     * @return [0]=x, [1]=y, [2]=z
+     */
+    public int[] toWorldOffset(int layer, int localX, int localY, boolean absolute) {
         int[] offset = new int[3];
-        offset[axisLayer.index] = layer * axisLayer.direction;
-        offset[axisLocalX.index] = localX * axisLocalX.direction;
-        offset[axisLocalY.index] = localY * axisLocalY.direction;
+        int vLayer = layer * axisLayer.direction;
+        int vLocalX = localX * axisLocalX.direction;
+        int vLocalY = localY * axisLocalY.direction;
+        if (absolute) {
+            offset[axisLayer.index] = Math.abs(vLayer);
+            offset[axisLocalX.index] = Math.abs(vLocalX);
+            offset[axisLocalY.index] = Math.abs(vLocalY);
+        } else {
+            offset[axisLayer.index] = vLayer;
+            offset[axisLocalX.index] = vLocalX;
+            offset[axisLocalY.index] = vLocalY;
+        }
         return offset;
     }
 
@@ -103,12 +124,27 @@ public enum EnumFacing {
      * @return [0]=layer, [1]=localX, [2]=localY
      */
     public int[] toLocalOffset(int offsetX, int offsetY, int offsetZ) {
+        return toLocalOffset(offsetX, offsetY, offsetZ, false);
+    }
+
+    /**
+     * 将世界坐标系转换为本地坐标系
+     * @param offsetX 世界X轴的值
+     * @param offsetY 世界Y轴的值
+     * @param offsetZ 世界Z轴的值
+     * @param absolute 是否取绝对值
+     * @return [0]=layer, [1]=localX, [2]=localY
+     */
+    public int[] toLocalOffset(int offsetX, int offsetY, int offsetZ, boolean absolute) {
         int[] worldOffset = new int[] { offsetX, offsetY, offsetZ };
-        int[] offset = new int[3];
-        offset[0] = worldOffset[axisLayer.index] * axisLayer.direction;
-        offset[1] = worldOffset[axisLocalX.index] * axisLocalX.direction;
-        offset[2] = worldOffset[axisLocalY.index] * axisLocalY.direction;
-        return offset;
+        int layer = worldOffset[axisLayer.index] * axisLayer.direction;
+        int localX = worldOffset[axisLocalX.index] * axisLocalX.direction;
+        int localY = worldOffset[axisLocalY.index] * axisLocalY.direction;
+        if (absolute) {
+            return new int[] { Math.abs(layer), Math.abs(localX), Math.abs(localY) };
+        } else {
+            return new int[] { layer, localX, localY };
+        }
     }
 
     /**

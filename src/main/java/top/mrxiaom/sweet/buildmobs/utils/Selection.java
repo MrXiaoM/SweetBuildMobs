@@ -4,8 +4,6 @@ import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.World;
 import org.bukkit.block.Block;
-import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.MemoryConfiguration;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -43,7 +41,7 @@ public class Selection {
      * @param facing 要求面向方向
      * @return 保存的配置
      */
-    public Result<ConfigurationSection> saveBlockLayers(EnumFacing facing) {
+    public Result<Saved> saveBlockLayers(EnumFacing facing) {
         return saveBlockLayers(facing, "abcdefghijkmlnopqrstuvwxyz0123456789".toCharArray());
     }
 
@@ -53,26 +51,29 @@ public class Selection {
      * @param dict 方块定义所用字典
      * @return 保存的配置
      */
-    public Result<ConfigurationSection> saveBlockLayers(EnumFacing facing, char[] dict) {
-        ConfigurationSection config = new MemoryConfiguration();
+    public Result<Saved> saveBlockLayers(EnumFacing facing, char[] dict) {
 
+        Saved config = new Saved();
         // 获取选取区域在本地坐标系的尺寸
         int[] localSize = facing.toLocalOffset(
                 Math.abs(toX - fromX) + 1,
                 Math.abs(toY - fromY) + 1,
-                Math.abs(toZ - fromZ) + 1
+                Math.abs(toZ - fromZ) + 1,
+                true
         );
+        int sizeLocalX = localSize[1];
+        int sizeLocalY = localSize[2];
         Map<Material, Integer> numbers = new HashMap<>();
         Map<Integer, char[][]> layers = new HashMap<>();
-        for (int y = fromY; y < toY; y++)
+        for (int y = fromY; y <= toY; y++)
             for (int x = fromX; x <= toX; x++)
-                for (int z = fromZ; z < toZ; z++) {
+                for (int z = fromZ; z <= toZ; z++) {
                     // 获取本地坐标
                     int[] offset = facing.toLocalOffset(x - fromX, y - fromY, z - fromZ);
                     int localX = offset[1];
                     int localY = offset[2];
                     char[][] layer = CollectionUtils.getOrPut(layers, offset[0], () -> {
-                        char[][] chars = new char[localSize[1]][localSize[0]];
+                        char[][] chars = new char[sizeLocalY][sizeLocalX];
                         for (char[] array : chars) {
                             Arrays.fill(array, ' ');
                         }
@@ -88,9 +89,8 @@ public class Selection {
                         if (index >= dict.length) {
                             return Result.illegalState("方块类型过多，超过了 " + dict.length + " 种方块，停止保存");
                         }
-                        int ch = dict[index];
-                        config.set("defines." + ch + ".type", "Vanilla");
-                        config.set("defines." + ch + ".material", type.name().toUpperCase());
+                        char ch = dict[index];
+                        config.defines.put(ch, type);
                         numbers.put(type, index);
                     } else {
                         index = numbers.get(type);
@@ -106,7 +106,7 @@ public class Selection {
                 // 倒序插入行到配置中
                 lines.add(0, String.valueOf(line));
             }
-            config.set("layers." + entry.getKey(), lines);
+            config.layers.put(entry.getKey(), lines);
         }
 
         return Result.ok(config);
@@ -149,6 +149,20 @@ public class Selection {
 
     public static Selection of(World world, int fromX, int fromY, int fromZ, int toX, int toY, int toZ) {
         return new Selection(world, fromX, fromY, fromZ, toX, toY, toZ);
+    }
+
+    public static class Saved {
+        private final Map<Character, Material> defines = new HashMap<>();
+        private final Map<Integer, List<String>> layers = new HashMap<>();
+        private Saved() {}
+
+        public Map<Character, Material> defines() {
+            return defines;
+        }
+
+        public Map<Integer, List<String>> layers() {
+            return layers;
+        }
     }
 
     public class ParticleArea {
