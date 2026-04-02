@@ -70,9 +70,10 @@ public class Selection {
                 for (int z = fromZ; z <= toZ; z++) {
                     // 获取本地坐标
                     int[] offset = facing.toLocalOffset(x - fromX, y - fromY, z - fromZ);
+                    int layerNum = Math.abs(offset[0]);
                     int localX = offset[1];
                     int localY = offset[2];
-                    char[][] layer = CollectionUtils.getOrPut(layers, offset[0], () -> {
+                    char[][] layer = CollectionUtils.getOrPut(layers, layerNum, () -> {
                         char[][] chars = new char[sizeLocalY][sizeLocalX];
                         for (char[] array : chars) {
                             Arrays.fill(array, ' ');
