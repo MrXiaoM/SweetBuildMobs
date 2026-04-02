@@ -9,6 +9,7 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import top.mrxiaom.pluginbase.func.AutoRegister;
@@ -78,6 +79,10 @@ public class SelectionManager extends AbstractModule implements Listener {
         Player player = e.getPlayer();
         SelectionData data = selectionMap.get(player.getUniqueId());
         if (data == null) return;
+        ItemStack item = e.getItem();
+        // 不处理玩家放置方块情况
+        if (item != null && item.getType().isBlock()) return;
+        e.setCancelled(true);
         Boolean leftClick = isLeftClickBlock(e.getAction());
         if (leftClick == null) return;
         if (leftClick) {
