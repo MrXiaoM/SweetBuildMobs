@@ -239,7 +239,7 @@ public class Selection {
         }
 
         private void spawn(Player player, Particle particle, double[] p) {
-            player.spawnParticle(particle, p[0], p[1], p[2], 1, 0.0, 0.0, 0.0);
+            player.spawnParticle(particle, p[0], p[1], p[2], 1, 0.0, 0.0, 0.0, 0.0);
         }
     }
 
