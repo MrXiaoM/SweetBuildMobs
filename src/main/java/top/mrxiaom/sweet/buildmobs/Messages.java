@@ -22,6 +22,6 @@ public class Messages {
     public static class Selection {
         public static final Message select_pos1 = field("&f已选择区域对角点1 &7(%x%, %y%, %z%)");
         public static final Message select_pos2 = field("&f已选择区域对角点2 &7(%x%, %y%, %z%)");
-        public static final Message available = field("&f区域已选中 &7(大小 %size_x% x %size_y% x %size_z%)&f，请&e面向该构筑的正面&f，然后执行命令&e /buildmobs save &f以保存构筑到临时配置中");
+        public static final Message available = field("&f区域已选中 &7(大小 %size_x% x %size_y% x %size_z%)&f，请&e面向该构筑的正面&f，然后执行命令&e /buildmobs select save &f以保存构筑到临时配置中");
     }
 }
