@@ -1,12 +1,13 @@
 package top.mrxiaom.sweet.buildmobs.depend.item;
 
 import net.momirealms.craftengine.bukkit.api.CraftEngineItems;
-import net.momirealms.craftengine.core.item.CustomItem;
+import net.momirealms.craftengine.bukkit.item.BukkitItemDefinition;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import top.mrxiaom.pluginbase.func.AutoRegister;
+import top.mrxiaom.pluginbase.utils.Util;
 import top.mrxiaom.sweet.buildmobs.SweetBuildMobs;
 import top.mrxiaom.sweet.buildmobs.api.ITriggerItem;
 import top.mrxiaom.sweet.buildmobs.func.AbstractModule;
@@ -15,7 +16,11 @@ import top.mrxiaom.sweet.buildmobs.func.AbstractModule;
 public class ItemCraftEngine extends AbstractModule implements ITriggerItem.Provider {
     public ItemCraftEngine(SweetBuildMobs plugin) {
         super(plugin);
-        plugin.registerTriggerItem(this);
+        if (Util.isPresent("net.momirealms.craftengine.bukkit.item.BukkitItemDefinition")) {
+            plugin.registerTriggerItem(this);
+        } else {
+            warn("CraftEngine 版本过低，请升级到 26.5 或以上");
+        }
     }
 
     @Override
@@ -31,9 +36,9 @@ public class ItemCraftEngine extends AbstractModule implements ITriggerItem.Prov
 
     @Override
     public @Nullable String key(@NotNull ItemStack item) {
-        CustomItem<ItemStack> customItem = CraftEngineItems.byItemStack(item);
+        BukkitItemDefinition customItem = CraftEngineItems.byItemStack(item);
         if (customItem != null) {
-            String id = ((Object) customItem.id()).toString();
+            String id = customItem.id().toString();
             return "craftengine:" + id;
         }
         return null;
@@ -54,9 +59,9 @@ public class ItemCraftEngine extends AbstractModule implements ITriggerItem.Prov
 
         @Override
         public boolean isMatch(@NotNull ItemStack item) {
-            CustomItem<ItemStack> customItem = CraftEngineItems.byItemStack(item);
+            BukkitItemDefinition customItem = CraftEngineItems.byItemStack(item);
             if (customItem != null) {
-                String id = ((Object) customItem.id()).toString();
+                String id = customItem.id().toString();
                 return this.id.equals(id);
             }
             return false;

@@ -45,8 +45,8 @@ dependencies {
     compileOnly("cn.lunadeer:DominionAPI:4.7.3")
 
     compileOnly("dev.lone:api-itemsadder:4.0.10")
-    compileOnly("net.momirealms:craft-engine-core:0.0.67")
-    compileOnly("net.momirealms:craft-engine-bukkit:0.0.67")
+    compileOnly("net.momirealms:craft-engine-core:26.5")
+    compileOnly("net.momirealms:craft-engine-bukkit:26.5")
 
     base.library(LibraryHelper.adventure("4.22.0"))
     base.collectPluginHolders()
