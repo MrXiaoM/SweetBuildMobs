@@ -9,7 +9,7 @@ plugins {
 
 buildscript {
     repositories.mavenCentral()
-    dependencies.classpath("top.mrxiaom:LibrariesResolver-Gradle:1.7.20")
+    dependencies.classpath("top.mrxiaom:LibrariesResolver-Gradle:1.7.21")
 }
 val base = LibraryHelper(project)
 
@@ -49,6 +49,7 @@ dependencies {
     compileOnly("net.momirealms:craft-engine-bukkit:0.0.67")
 
     base.library(LibraryHelper.adventure("4.22.0"))
+    base.collectPluginHolders()
 
     implementation("com.github.technicallycoded:FoliaLib:0.4.4") { isTransitive = false }
     for (artifact in pluginBaseModules) {
