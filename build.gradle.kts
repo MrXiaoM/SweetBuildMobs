@@ -9,7 +9,7 @@ plugins {
 
 buildscript {
     repositories.mavenCentral()
-    dependencies.classpath("top.mrxiaom:LibrariesResolver-Gradle:1.7.21")
+    dependencies.classpath("top.mrxiaom:LibrariesResolver-Gradle:1.7.27")
 }
 val base = LibraryHelper(project)
 
@@ -36,7 +36,7 @@ dependencies {
     // compileOnly("org.spigotmc:spigot:1.20") // NMS
     compileOnly(base.depend.annotations)
 
-    compileOnly("me.clip:placeholderapi:2.11.6")
+    compileOnly("me.clip:placeholderapi:2.12.2")
     compileOnly("io.lumine:Mythic-Dist:4.13.0")
     compileOnly("io.lumine:Mythic:5.6.2")
     compileOnly("io.lumine:LumineUtils:1.20-SNAPSHOT")
@@ -45,10 +45,10 @@ dependencies {
     compileOnly("cn.lunadeer:DominionAPI:4.7.3")
 
     compileOnly("dev.lone:api-itemsadder:4.0.10")
-    compileOnly("net.momirealms:craft-engine-core:26.5")
-    compileOnly("net.momirealms:craft-engine-bukkit:26.5")
+    compileOnly("net.momirealms:craft-engine-core:26.6")
+    compileOnly("net.momirealms:craft-engine-bukkit:26.6")
 
-    base.library(LibraryHelper.adventure("4.22.0"))
+    base.library(LibraryHelper.adventure("4.25.0"))
     base.collectPluginHolders()
 
     implementation("com.github.technicallycoded:FoliaLib:0.4.4") { isTransitive = false }
