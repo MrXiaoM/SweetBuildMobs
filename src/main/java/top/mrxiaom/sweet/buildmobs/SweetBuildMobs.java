@@ -12,7 +12,6 @@ import top.mrxiaom.pluginbase.func.LanguageManager;
 import top.mrxiaom.pluginbase.paper.PaperFactory;
 import top.mrxiaom.pluginbase.utils.inventory.InventoryFactory;
 import top.mrxiaom.pluginbase.utils.item.ItemEditor;
-import top.mrxiaom.pluginbase.utils.scheduler.FoliaLibScheduler;
 import top.mrxiaom.pluginbase.utils.ClassLoaderWrapper;
 import top.mrxiaom.pluginbase.utils.ConfigUtils;
 import top.mrxiaom.pluginbase.resolver.DefaultLibraryResolver;
@@ -44,7 +43,6 @@ public class SweetBuildMobs extends BukkitPlugin {
                 .reconnectDatabaseWhenReloadConfig(false)
                 .scanIgnore("top.mrxiaom.sweet.buildmobs.libs")
         );
-        this.scheduler = new FoliaLibScheduler(this);
 
         try {
             //noinspection ResultOfMethodCallIgnored
